@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}VFD Toolkit{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1B3A5C; --navy-light: #2C5580; --paper: #FAFAF7; --paper-line: #E4E0D6;
+    --amber: #E8823D; --steel: #6B7684; --green: #4A7C59; --red: #B5544A; --ink: #1C1F24;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.5; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 24px 60px; }
+
+  .top-brand { font-family: 'IBM Plex Sans', sans-serif; font-weight: 700; font-size: 15px; color: var(--navy); margin-bottom: 4px; }
+  .top-sub { font-size: 12px; color: var(--steel); margin-bottom: 20px; }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 2px solid var(--paper-line); }
+  .tab { padding: 10px 18px; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--steel); border-bottom: 2px solid transparent; margin-bottom: -2px; }
+  .tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+  .tab:hover { color: var(--navy); }
+
+  header { margin-bottom: 24px; }
+  header h1 { font-family: 'IBM Plex Sans', sans-serif; font-size: 21px; font-weight: 700; color: var(--navy); margin: 0 0 6px 0; }
+  header p { margin: 0; color: var(--steel); font-size: 13px; }
+  .badge-tool { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--navy); border: 1px solid var(--navy); padding: 2px 8px; margin-bottom: 10px; transform: rotate(-1deg); }
+
+  .panel {
+    position: relative; background: #fff; border: 1px solid var(--paper-line);
+    padding: 24px 26px; margin-bottom: 24px;
+    background-image: linear-gradient(var(--paper-line) 1px, transparent 1px), linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
+    background-size: 24px 24px; background-position: -1px -1px;
+  }
+  .panel-corner { position: absolute; width: 9px; height: 9px; border-color: var(--navy); opacity: 0.55; }
+  .panel-corner.tl { top: -1px; left: -1px; border-top: 2px solid var(--navy); border-left: 2px solid var(--navy); }
+  .panel-corner.tr { top: -1px; right: -1px; border-top: 2px solid var(--navy); border-right: 2px solid var(--navy); }
+  .panel-corner.bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--navy); border-left: 2px solid var(--navy); }
+  .panel-corner.br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--navy); border-right: 2px solid var(--navy); }
+  .panel h2 { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--navy); margin: 0 0 16px 0; }
+
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--steel); margin-bottom: 6px; font-weight: 600; }
+  .field input { width: 100%; padding: 10px 11px; border: 1px solid var(--paper-line); font-family: 'Inter', sans-serif; font-size: 13px; background: #fff; }
+  .field input:focus { outline: 2px solid var(--navy-light); outline-offset: 1px; border-color: var(--navy); }
+  .field .hint { font-size: 11px; color: var(--steel); margin-top: 4px; }
+
+  .btn { display: inline-block; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 11px 24px; background: var(--navy); color: #fff; border: none; cursor: pointer; }
+  .btn:hover { background: var(--navy-light); }
+
+  .error-banner { padding: 12px 18px; font-size: 13px; font-weight: 500; margin-bottom: 20px; border-left: 3px solid var(--red); background: #FBEEEC; color: #8A342A; }
+
+  .result-headline { text-align: center; padding: 20px 0 24px 0; border-bottom: 1px solid var(--paper-line); margin-bottom: 20px; }
+  .result-headline .val { font-family: 'IBM Plex Mono', monospace; font-size: 38px; font-weight: 600; color: var(--navy); }
+  .result-headline .val-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--steel); margin-top: 4px; }
+
+  .result-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .result-box { background: #fff; border: 1px solid var(--paper-line); padding: 16px 18px; text-align: center; }
+  .result-box .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--steel); margin-bottom: 8px; }
+  .result-box .value { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 600; color: var(--navy); }
+  .result-box.highlight { border-color: var(--navy); border-width: 2px; }
+
+  table.breakdown { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.breakdown td { padding: 9px 4px; border-bottom: 1px solid var(--paper-line); }
+  table.breakdown td:first-child { color: var(--steel); }
+  table.breakdown td:last-child { text-align: right; font-family: 'IBM Plex Mono', monospace; font-weight: 500; color: var(--ink); }
+  table.breakdown tr.highlight td { font-weight: 700; color: var(--navy); }
+
+  .risk-badge { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 5px 16px; border: 1.5px solid currentColor; transform: rotate(-1.5deg); margin-top: 10px; }
+  .risk-badge.Low { color: var(--green); }
+  .risk-badge.Moderate { color: var(--amber); }
+  .risk-badge.High { color: var(--red); }
+
+  .disclaimer { font-size: 12px; color: var(--steel); background: #FDF0E6; border-left: 3px solid var(--amber); padding: 12px 16px; margin-top: 20px; }
+  .disclaimer strong { color: #8A4E1F; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-brand">VFD TOOLKIT</div>
+  <div class="top-sub">Energy savings, sizing/derating, and harmonics screening for Variable Frequency Drive applications</div>
+  <div class="tabs">
+    <a class="tab {% if active=='energy' %}active{% endif %}" href="{{ url_for('energy_savings') }}">Energy Savings</a>
+    <a class="tab {% if active=='sizing' %}active{% endif %}" href="{{ url_for('sizing') }}">Sizing &amp; Derating</a>
+    <a class="tab {% if active=='harmonics' %}active{% endif %}" href="{{ url_for('harmonics') }}">Harmonics Screening</a>
+  </div>
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>

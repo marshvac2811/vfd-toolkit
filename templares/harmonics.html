@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}VFD Harmonics Screening{% endblock %}
+{% block content %}
+<header>
+  <span class="badge-tool">SCREENING HEURISTIC — NOT A FORMAL STUDY</span>
+  <h1>Harmonics / Power Quality Screening</h1>
+  <p>A rough first-pass risk indicator based on VFD load as a percentage of transformer capacity.</p>
+</header>
+
+{% if error %}<div class="error-banner">{{ error }}</div>{% endif %}
+
+<div class="panel">
+  <span class="panel-corner tl"></span><span class="panel-corner tr"></span>
+  <span class="panel-corner bl"></span><span class="panel-corner br"></span>
+  <h2>Load Parameters</h2>
+  <form method="POST">
+    <div class="field-grid">
+      <div class="field">
+        <label>Total VFD Load (kVA)</label>
+        <input type="number" step="any" name="total_vfd_kva" value="{{ form_values.total_vfd_kva }}" placeholder="e.g. 150" required>
+        <div class="hint">Sum of all VFD-driven loads on this transformer/system</div>
+      </div>
+      <div class="field">
+        <label>Transformer/System Capacity (kVA)</label>
+        <input type="number" step="any" name="transformer_kva" value="{{ form_values.transformer_kva }}" placeholder="e.g. 750" required>
+      </div>
+    </div>
+    <button type="submit" class="btn">Screen Risk Level</button>
+  </form>
+</div>
+
+{% if result %}
+<div class="panel">
+  <span class="panel-corner tl"></span><span class="panel-corner tr"></span>
+  <span class="panel-corner bl"></span><span class="panel-corner br"></span>
+  <div class="result-headline">
+    <div class="val">{{ result.loading_pct }}%</div>
+    <div class="val-label">VFD Load as % of Transformer Capacity</div>
+    <div class="risk-badge {{ result.risk_level }}">{{ result.risk_level }} Risk</div>
+  </div>
+
+  <table class="breakdown">
+    <tr><td>Total VFD load</td><td>{{ result.total_vfd_kva }} kVA</td></tr>
+    <tr><td>Transformer/system capacity</td><td>{{ result.transformer_kva }} kVA</td></tr>
+    <tr class="highlight"><td>Loading percentage</td><td>{{ result.loading_pct }}%</td></tr>
+  </table>
+
+  <p style="margin-top:16px; font-size:13px;">{{ result.guidance }}</p>
+
+  <div class="disclaimer">
+    <strong>This is a screening heuristic, not a harmonic study.</strong> Actual IEEE 519 compliance
+    depends on the system's short-circuit ratio (Isc/IL), specific VFD switching characteristics
+    (6-pulse vs. 12-pulse vs. active front end), and total non-linear load composition — none of which
+    this simple loading-percentage check can capture. Use this only as a rough first-pass indicator of
+    whether a formal harmonic study is warranted, never as a final compliance determination.
+  </div>
+</div>
+{% endif %}
+{% endblock %}

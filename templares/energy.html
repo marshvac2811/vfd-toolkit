@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}VFD Energy Savings — Affinity Laws{% endblock %}
+{% block content %}
+<header>
+  <span class="badge-tool">AFFINITY LAWS CALCULATOR</span>
+  <h1>VFD Energy Savings Calculator</h1>
+  <p>Estimates energy savings from reducing pump/fan speed via VFD, using the affinity laws (Power ∝ Speed³).</p>
+</header>
+
+{% if error %}<div class="error-banner">{{ error }}</div>{% endif %}
+
+<div class="panel">
+  <span class="panel-corner tl"></span><span class="panel-corner tr"></span>
+  <span class="panel-corner bl"></span><span class="panel-corner br"></span>
+  <h2>System Parameters</h2>
+  <form method="POST">
+    <div class="field-grid">
+      <div class="field">
+        <label>Motor Rated Power (kW)</label>
+        <input type="number" step="any" name="motor_kw" value="{{ form_values.motor_kw }}" placeholder="e.g. 22" required>
+      </div>
+      <div class="field">
+        <label>Speed Reduction (%)</label>
+        <input type="number" step="any" name="speed_reduction_pct" value="{{ form_values.speed_reduction_pct }}" placeholder="e.g. 20" required>
+        <div class="hint">e.g. 20 means running at 80% of full speed</div>
+      </div>
+      <div class="field">
+        <label>Static Head Fraction (%)</label>
+        <input type="number" step="any" name="static_head_fraction" value="{{ form_values.static_head_fraction }}" placeholder="0">
+        <div class="hint">0 = pure friction system (cube law exact); higher = less savings in practice</div>
+      </div>
+      <div class="field">
+        <label>Annual Operating Hours</label>
+        <input type="number" step="any" name="annual_hours" value="{{ form_values.annual_hours }}" placeholder="e.g. 4000" required>
+      </div>
+      <div class="field">
+        <label>Electricity Tariff (₹/kWh)</label>
+        <input type="number" step="any" name="tariff_per_kwh" value="{{ form_values.tariff_per_kwh }}" placeholder="e.g. 8.5" required>
+      </div>
+    </div>
+    <button type="submit" class="btn">Calculate Savings</button>
+  </form>
+</div>
+
+{% if result %}
+<div class="panel">
+  <span class="panel-corner tl"></span><span class="panel-corner tr"></span>
+  <span class="panel-corner bl"></span><span class="panel-corner br"></span>
+  <div class="result-headline">
+    <div class="val">₹ {{ "{:,.0f}".format(result.annual_savings_cost_corrected) }}</div>
+    <div class="val-label">Estimated Annual Savings (adjusted for static head)</div>
+  </div>
+
+  <div class="result-grid-2">
+    <div class="result-box">
+      <div class="label">Pure Cube-Law Savings</div>
+      <div class="value">{{ result.savings_pct_pure }}%</div>
+    </div>
+    <div class="result-box highlight">
+      <div class="label">Realistic Savings (adjusted)</div>
+      <div class="value">{{ result.savings_pct_corrected }}%</div>
+    </div>
+  </div>
+
+  <h2>Breakdown</h2>
+  <table class="breakdown">
+    <tr><td>Motor rated power</td><td>{{ result.motor_kw }} kW</td></tr>
+    <tr><td>Speed reduction</td><td>{{ result.speed_reduction_pct }}% (running at {{ (result.speed_ratio*100)|round(1) }}% speed)</td></tr>
+    <tr><td>Static head fraction assumed</td><td>{{ result.static_head_fraction }}%</td></tr>
+    <tr><td>Power at reduced speed — pure cube law</td><td>{{ result.reduced_power_kw_pure }} kW</td></tr>
+    <tr><td>Power at reduced speed — adjusted for static head</td><td>{{ result.reduced_power_kw_corrected }} kW</td></tr>
+    <tr class="highlight"><td>Realistic power savings</td><td>{{ result.savings_pct_corrected }}%</td></tr>
+    <tr><td>Annual operating hours</td><td>{{ result.annual_hours }} hrs</td></tr>
+    <tr><td>Electricity tariff</td><td>₹{{ result.tariff_per_kwh }}/kWh</td></tr>
+    <tr><td>Annual energy savings (pure cube law)</td><td>{{ "{:,.0f}".format(result.annual_savings_kwh_pure) }} kWh</td></tr>
+    <tr class="highlight"><td>Annual energy savings (adjusted)</td><td>{{ "{:,.0f}".format(result.annual_savings_kwh_corrected) }} kWh</td></tr>
+    <tr class="highlight"><td>Annual cost savings (adjusted)</td><td>₹ {{ "{:,.0f}".format(result.annual_savings_cost_corrected) }}</td></tr>
+  </table>
+
+  <div class="disclaimer">
+    <strong>Affinity laws apply exactly to a pure dynamic (friction-only) system.</strong> Real pump/fan
+    systems often have a static head component (elevation lift, fixed pressure requirement) that doesn't
+    reduce with speed — this means actual savings are typically lower than the pure cube-law number.
+    Set "Static Head Fraction" to your system's actual static-to-total-head ratio for a more realistic
+    estimate; use 0 only for systems with negligible static head (e.g. closed-loop chilled water circuits).
+  </div>
+</div>
+{% endif %}
+{% endblock %}

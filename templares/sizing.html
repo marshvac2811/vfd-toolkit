@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}VFD Sizing & Derating{% endblock %}
+{% block content %}
+<header>
+  <span class="badge-tool">DERATING REFERENCE TOOL</span>
+  <h1>VFD Sizing &amp; Selection Calculator</h1>
+  <p>Applies typical temperature and altitude derating to recommend a VFD rating for the given motor and site conditions.</p>
+</header>
+
+{% if error %}<div class="error-banner">{{ error }}</div>{% endif %}
+
+<div class="panel">
+  <span class="panel-corner tl"></span><span class="panel-corner tr"></span>
+  <span class="panel-corner bl"></span><span class="panel-corner br"></span>
+  <h2>Motor &amp; Site Conditions</h2>
+  <form method="POST">
+    <div class="field-grid">
+      <div class="field">
+        <label>Motor Rated Power (kW)</label>
+        <input type="number" step="any" name="motor_kw" value="{{ form_values.motor_kw }}" placeholder="e.g. 22" required>
+      </div>
+      <div class="field">
+        <label>Ambient Temperature (°C)</label>
+        <input type="number" step="any" name="ambient_temp_c" value="{{ form_values.ambient_temp_c }}" placeholder="40" required>
+        <div class="hint">Standard VFD rating point: 40°C</div>
+      </div>
+      <div class="field">
+        <label>Site Altitude (m)</label>
+        <input type="number" step="any" name="altitude_m" value="{{ form_values.altitude_m }}" placeholder="1000" required>
+        <div class="hint">Standard VFD rating point: 1000m</div>
+      </div>
+    </div>
+    <button type="submit" class="btn">Calculate Sizing</button>
+  </form>
+</div>
+
+{% if result %}
+<div class="panel">
+  <span class="panel-corner tl"></span><span class="panel-corner tr"></span>
+  <span class="panel-corner bl"></span><span class="panel-corner br"></span>
+  <div class="result-headline">
+    <div class="val">{{ result.recommended_vfd_kw }} kW</div>
+    <div class="val-label">Recommended VFD Rating (standard size)</div>
+  </div>
+
+  <h2>Derating Breakdown</h2>
+  <table class="breakdown">
+    <tr><td>Motor rated power</td><td>{{ result.motor_kw }} kW</td></tr>
+    <tr><td>Ambient temperature</td><td>{{ result.ambient_temp_c }}°C</td></tr>
+    <tr><td>Site altitude</td><td>{{ result.altitude_m }} m</td></tr>
+    <tr><td>Temperature derating</td><td>{{ result.temp_derate_pct }}%</td></tr>
+    <tr><td>Altitude derating</td><td>{{ result.altitude_derate_pct }}%</td></tr>
+    <tr class="highlight"><td>Total derating applied</td><td>{{ result.total_derate_pct }}%</td></tr>
+    <tr><td>Derating factor</td><td>{{ result.derating_factor }}</td></tr>
+    <tr><td>Required VFD capacity (before rounding)</td><td>{{ result.required_vfd_kw }} kW</td></tr>
+    <tr class="highlight"><td>Recommended VFD rating (standard size)</td><td>{{ result.recommended_vfd_kw }} kW</td></tr>
+  </table>
+
+  <div class="disclaimer">
+    <strong>Generic reference derating curves — verify against the actual manufacturer's datasheet.</strong>
+    This tool uses commonly cited typical derating guidelines (≈2%/°C above 40°C ambient, ≈1%/100m above
+    1000m altitude), but actual derating varies significantly by VFD brand, model, and switching frequency
+    setting. Always confirm against the selected VFD's official derating curve before finalizing the order.
+  </div>
+</div>
+{% endif %}
+{% endblock %}
